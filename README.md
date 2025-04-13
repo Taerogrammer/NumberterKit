@@ -1,5 +1,9 @@
 # NumberterKit
 
+![Swift](https://img.shields.io/badge/Swift-5.7%2B-orange)
+![Version](https://img.shields.io/github/v/tag/Taerogrammer/NumberterKit)
+[![Changelog](https://img.shields.io/badge/Changelog-View-blue)](CHANGELOG.md)
+
 **NumberterKit**은 Swift에서 숫자 데이터를 깔끔하고 일관된 방식으로 처리하기 위한 유틸리티 라이브러리입니다.  
 숫자 포맷팅, 통화 및 퍼센트 표현, 형 변환, 반올림 등 다양한 수치 기반 연산을 간결하게 다룰 수 있도록 돕습니다.  
 현재는 `Decimal`과 `Int64` 중심으로 구성되어 있으며, 향후 다양한 숫자 타입으로의 확장을 지속적으로 지원할 예정입니다.
