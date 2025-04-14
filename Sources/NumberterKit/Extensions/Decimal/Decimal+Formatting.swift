@@ -22,6 +22,18 @@ public extension Decimal {
         FormatterProvider.integerDecimal.string(from: NSDecimalNumber(decimal: self)) ?? self.description
     }
 
+    /// 지정된 소수점 자리수로 포맷된 문자열을 반환합니다.
+    ///
+    /// 내부적으로 `FormatterProvider.decimal(fractionDigits:)`를 사용합니다.
+    ///
+    /// ```swift
+    /// Decimal(1234.5678).formatted(fractionDigits: 2)  // "1,234.57"
+    /// ```
+    func formatted(fractionDigits: Int) -> String {
+        FormatterProvider.decimal(fractionDigits: fractionDigits)
+            .string(from: NSDecimalNumber(decimal: self)) ?? self.description
+    }
+
     /// 퍼센트 포맷 문자열을 반환합니다.
     ///
     /// - Parameter withSpacing: `%` 기호 앞에 공백을 넣을지 여부 (기본값: `false`)
