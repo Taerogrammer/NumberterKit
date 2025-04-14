@@ -9,6 +9,18 @@ import Foundation
 
 public enum FormatterProvider {
 
+    /// 지정된 소수점 자리수를 가진 NumberFormatter를 반환합니다.
+    public static func decimal(fractionDigits: Int) -> NumberFormatter {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = fractionDigits
+        formatter.maximumFractionDigits = fractionDigits
+        formatter.groupingSeparator = ","
+        formatter.locale = Locale(identifier: "ko_KR")
+
+        return formatter
+    }
+
     /// 쉼표만 포함, 소수점 없음
     public static let integerDecimal: NumberFormatter = {
         let formatter = NumberFormatter()
