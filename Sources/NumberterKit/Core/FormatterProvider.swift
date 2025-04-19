@@ -25,42 +25,46 @@ public enum FormatterProvider {
 
     /// 쉼표만 포함, 소수점 없음
     public static func integerDecimal() -> NumberFormatter {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.maximumFractionDigits = 0
-        formatter.groupingSeparator = ","
-        formatter.locale = Locale(identifier: "ko_KR")
-        return formatter
+        lock.performLocked {
+            formatter.numberStyle = .decimal
+            formatter.maximumFractionDigits = 0
+            formatter.groupingSeparator = ","
+            formatter.locale = Locale(identifier: "ko_KR")
+            return formatter
+        }
     }
 
     /// 통화용 (₩)
     public static func wonCurrency() -> NumberFormatter {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.maximumFractionDigits = 0
-        formatter.groupingSeparator = ","
-        formatter.locale = Locale(identifier: "ko_KR")
-        return formatter
+        lock.performLocked {
+            formatter.numberStyle = .decimal
+            formatter.maximumFractionDigits = 0
+            formatter.groupingSeparator = ","
+            formatter.locale = Locale(identifier: "ko_KR")
+            return formatter
+        }
     }
 
     /// 통화용 ($)
     public static func dollarCurrency() -> NumberFormatter {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.maximumFractionDigits = 0
-        formatter.groupingSeparator = ","
-        formatter.locale = Locale(identifier: "en_US")
-        return formatter
+        lock.performLocked {
+            formatter.numberStyle = .decimal
+            formatter.maximumFractionDigits = 0
+            formatter.groupingSeparator = ","
+            formatter.locale = Locale(identifier: "en_US")
+            return formatter
+        }
     }
 
     /// 퍼센트용 (2자리 고정)
     public static func percent2Digits() -> NumberFormatter {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = 2
-        formatter.groupingSeparator = ","
-        formatter.locale = Locale(identifier: "ko_KR")
-        return formatter
+        lock.performLocked {
+            formatter.numberStyle = .decimal
+            formatter.minimumFractionDigits = 2
+            formatter.maximumFractionDigits = 2
+            formatter.groupingSeparator = ","
+            formatter.locale = Locale(identifier: "ko_KR")
+            return formatter
+        }
     }
 }
