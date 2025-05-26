@@ -52,4 +52,74 @@ final class FormatterProviderTests: XCTestCase {
         let result = formatter.string(from: number)
         XCTAssertEqual(result, "1,234.6", "포맷 결과가 예상과 다릅니다.")
     }
+
+    func testIntToStringConversion() {
+        let value: Int = 1234
+        let formatted = value.formatted  // 가정: 확장 메서드
+        XCTAssertEqual(formatted, "1,234")       // 기대값 비교
+    }
+
+    func testDecimalRounding() {
+        let value = Decimal(string: "123.4567")!
+        let rounded = value.rounded(scale: 2)  // 소수점 둘째 자리 반올림 가정
+        XCTAssertEqual(rounded, Decimal(string: "123.46"))
+    }
+
+
+    // MARK: - 성능 테스트
+    // MARK: 싱글 스레드
+    /// NumberFormatter 생성
+    func testFormatterCreationPerformance() {
+        measure {
+            for _ in 0..<10_000 {
+                let formatter = NumberFormatter()
+                _ = formatter.string(from: 1234.5678)
+            }
+        }
+    }
+    /// 공유 인스턴스
+    func testSharedFormatterWithSpinLockPerformance() {
+        let number = NSNumber(value: 1234.5678)
+
+        measure {
+            for _ in 0..<10_000 {
+                _ = FormatterProvider.decimal(fractionDigits: 2).string(from: number)
+            }
+        }
+    }
+
+    // MARK: 멀티 스레드
+    /// NumberFormatter 생성
+    func testNewFormatterCreationPerformanceMultiThread() {
+        let number = NSNumber(value: 1234.5678)
+        let iterations = 10_000
+
+        measure {
+            DispatchQueue.concurrentPerform(iterations: 10) { _ in
+                for _ in 0..<(iterations / 10) {
+                    let formatter = NumberFormatter()
+                    formatter.numberStyle = .decimal
+                    formatter.minimumFractionDigits = 2
+                    formatter.maximumFractionDigits = 2
+                    formatter.groupingSeparator = ","
+                    formatter.locale = Locale(identifier: "ko_KR")
+
+                    _ = formatter.string(from: number)
+                }
+            }
+        }
+    }
+    /// 공유 인스턴스
+    func testSharedFormatterPerformanceMultiThread() {
+        let number = NSNumber(value: 1234.5678)
+        let iterations = 10_000
+
+        measure {
+            DispatchQueue.concurrentPerform(iterations: 10) { _ in
+                for _ in 0..<(iterations / 10) {
+                    _ = FormatterProvider.decimal(fractionDigits: 2).string(from: number)
+                }
+            }
+        }
+    }
 }
