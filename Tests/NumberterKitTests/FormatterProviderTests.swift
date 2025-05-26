@@ -65,6 +65,46 @@ final class FormatterProviderTests: XCTestCase {
         XCTAssertEqual(rounded, Decimal(string: "123.46"))
     }
 
+    func testDecimalWithVariousFractionDigits() {
+        let value = NSNumber(value: 1234.5678)
+        for digits in 0...4 {
+            let formatter = FormatterProvider.decimal(fractionDigits: digits)
+            let result = formatter.string(from: value)
+            XCTAssertNotNil(result, "digits: \(digits) 포맷 결과가 nil입니다.")
+        }
+    }
+
+    func testIntegerDecimalFormatterOutput() {
+        let value = NSNumber(value: 1234567.0)
+        let result = FormatterProvider.integerDecimal().string(from: value)
+        XCTAssertEqual(result, "1,234,567", "정수 포맷 출력이 예상과 다릅니다.")
+    }
+
+    func testCurrencySymbolOutput() {
+        let value = Decimal(1234.56)
+
+        let won = value.currencyString(.won)
+        XCTAssertTrue(won.contains("₩"), "₩ 통화 기호가 누락되었습니다.")
+
+        let dollar = value.currencyString(.dollar)
+        XCTAssertTrue(dollar.contains("$"), "$ 통화 기호가 누락되었습니다.")
+    }
+
+    func testPercentFormattingEdgeCases() {
+        let value = Decimal(string: "0.0")!
+        let percent = value.percentString(withSpacing: true)
+        XCTAssertEqual(percent, "0.00 %", "0% 출력이 올바르지 않습니다.")
+
+        let full = Decimal(string: "1.0")!
+        let percent100 = full.percentString()
+        XCTAssertEqual(percent100, "100.00%", "100% 출력이 올바르지 않습니다.")
+    }
+
+    func testDecimalNegativeFormatting() {
+        let value = Decimal(string: "-1234.5678")!
+        let formatted = value.formatted(fractionDigits: 1)
+        XCTAssertEqual(formatted, "-1,234.6", "음수 포맷 결과가 예상과 다릅니다.")
+    }
 
     // MARK: - 성능 테스트
     // MARK: 싱글 스레드
