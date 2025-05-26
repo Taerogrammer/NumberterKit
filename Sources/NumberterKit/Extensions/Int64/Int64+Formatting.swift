@@ -19,7 +19,7 @@ public extension Int64 {
     /// Int64(123456).formatted  // "123,456"
     /// ```
     var formatted: String {
-        FormatterProvider.integerDecimal.string(from: NSNumber(value: self)) ?? "\(self)"
+        FormatterProvider.integerDecimal().string(from: NSNumber(value: self)) ?? "\(self)"
     }
 
     /// 퍼센트 포맷 문자열을 반환합니다.
@@ -32,7 +32,7 @@ public extension Int64 {
     /// ```
     func percentString(withSpacing: Bool = false) -> String {
         let decimalValue = Decimal(self) * 100
-        let formatted = FormatterProvider.percent2Digits.string(from: NSDecimalNumber(decimal: decimalValue)) ?? "\(self)"
+        let formatted = FormatterProvider.percent2Digits().string(from: NSDecimalNumber(decimal: decimalValue)) ?? "\(self)"
         return withSpacing ? "\(formatted) %" : "\(formatted)%"
     }
 
@@ -48,8 +48,8 @@ public extension Int64 {
     /// ```
     func currencyString(_ style: CurrencyStyle = .won, withSpacing: Bool = true) -> String {
         let formatter: NumberFormatter = switch style {
-        case .won: FormatterProvider.wonCurrency
-        case .dollar: FormatterProvider.dollarCurrency
+        case .won: FormatterProvider.wonCurrency()
+        case .dollar: FormatterProvider.dollarCurrency()
         }
 
         let formatted = formatter.string(from: NSNumber(value: self)) ?? "\(self)"

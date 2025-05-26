@@ -19,7 +19,7 @@ public extension Double {
     /// Double(123456).formatted  // "123,456"
     /// ```
     var formatted: String {
-        FormatterProvider.integerDecimal.string(from: NSNumber(value: self)) ?? "\(self)"
+        FormatterProvider.integerDecimal().string(from: NSNumber(value: self)) ?? "\(self)"
     }
 
     /// 지정된 소수점 자리수로 포맷된 문자열을 반환합니다.
@@ -44,7 +44,7 @@ public extension Double {
     /// ```
     func percentString(withSpacing: Bool = false) -> String {
         let value = self * 100
-        let formatted = FormatterProvider.percent2Digits.string(from: NSNumber(value: value)) ?? "\(self)"
+        let formatted = FormatterProvider.percent2Digits().string(from: NSNumber(value: value)) ?? "\(self)"
         return withSpacing ? "\(formatted) %" : "\(formatted)%"
     }
 
@@ -60,8 +60,8 @@ public extension Double {
     /// ```
     func currencyString(_ style: CurrencyStyle = .won, withSpacing: Bool = true) -> String {
         let formatter: NumberFormatter = switch style {
-        case .won: FormatterProvider.wonCurrency
-        case .dollar: FormatterProvider.dollarCurrency
+        case .won: FormatterProvider.wonCurrency()
+        case .dollar: FormatterProvider.dollarCurrency()
         }
 
         let formatted = formatter.string(from: NSNumber(value: self)) ?? "\(self)"
