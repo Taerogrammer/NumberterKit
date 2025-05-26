@@ -128,13 +128,16 @@ let nsDecimal = value.nsDecimalNumber // NSDecimalNumber
 # 버전 정보
 
 
-현재 최신 버전: **v1.0.2**
+현재 최신 버전: **v1.0.5**
 
 NumberterKit은 시맨틱 버전(Semantic Versioning)을 따릅니다.  
 전체 변경 이력은 [CHANGELOG.md](CHANGELOG.md)에서 확인하실 수 있습니다.
 
 | 버전  | 주요 변경 사항 |
 |--------|----------------|
+| 1.0.5 | 	SpinLock 기법 도입으로 NumberFormatter 공유 시 멀티스레드 안정성 확보<br>성능 측정 및 단위 테스트 코드 추가 |
+| 1.0.4 | .formatted, .percentString(), .currencyString() 등의 API를 Int 및 Double 타입에도 확장 적용 |
+| 1.0.3 | 지정된 소수점 자리수로 포맷된 문자열을 반환하는 기능 |
 | 1.0.2 | (재배포) 내부 배포 문제로 인한 코드 변경 없는 릴리스 |
 | 1.0.1 | `Decimal` 복합 연산자 오버로딩 제거 (`+=`, `-=`, `*=`, `/=`) |
 | 1.0.0 | `Decimal` 및 `Int64` 기반 숫자 포맷팅, 통화, 퍼센트, 형 변환 기능 최초 릴리스 |
