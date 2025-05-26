@@ -106,6 +106,39 @@ final class FormatterProviderTests: XCTestCase {
         XCTAssertEqual(formatted, "-1,234.6", "음수 포맷 결과가 예상과 다릅니다.")
     }
 
+    func testVariousFractionDigits() {
+        let number = Decimal(string: "1234.5678")!
+        XCTAssertEqual(number.formatted(fractionDigits: 0), "1,235")
+        XCTAssertEqual(number.formatted(fractionDigits: 1), "1,234.6")
+        XCTAssertEqual(number.formatted(fractionDigits: 3), "1,234.568")
+    }
+
+    func testNegativeDecimalFormatting() {
+        let number = Decimal(string: "-9876.54321")!
+        XCTAssertEqual(number.formatted(fractionDigits: 2), "-9,876.54")
+    }
+
+    func testCurrencySymbolSpacingOptions() {
+        let number = Decimal(string: "1234.56")!
+        XCTAssertEqual(number.currencyString(.won, withSpacing: true), "1,235 ₩")
+        XCTAssertEqual(number.currencyString(.won, withSpacing: false), "1,235₩")
+    }
+
+    func testPercentBoundaries() {
+        let zero = Decimal(string: "0")!
+        let full = Decimal(string: "1")!
+        XCTAssertEqual(zero.percentString(), "0.00%")
+        XCTAssertEqual(full.percentString(), "100.00%")
+    }
+
+    func testFormatterConfigurationValues() {
+        let formatter = FormatterProvider.decimal(fractionDigits: 2)
+        XCTAssertEqual(formatter.minimumFractionDigits, 2)
+        XCTAssertEqual(formatter.maximumFractionDigits, 2)
+        XCTAssertEqual(formatter.numberStyle, .decimal)
+        XCTAssertEqual(formatter.groupingSeparator, ",")
+    }
+
     // MARK: - 성능 테스트
     // MARK: 싱글 스레드
     /// NumberFormatter 생성
