@@ -177,4 +177,93 @@ SpinLock 기반으로 공유 인스턴스를 동기화하여 재사용하는 방
 | 멀티 스레드 (10개) | 매번 생성 (`newDecimal`)      | `~0.265s`     |
 | 멀티 스레드 (10개) | 공유 + SpinLock (`decimal`) | `~0.122s`     |
 
+<br><br><br>
+
+# Swift Concurrency (Actor) vs os_unfair_lock 비교
+
+NumberterKit은 멀티스레드 환경에서 NumberFormatter를 안전하게 공유하기 위해 `os_unfair_lock` 기반의 SpinLock을 사용합니다.
+Swift Concurrency의 `actor`와 성능 및 특성을 비교하여 최적의 동기화 방식을 선택하였습니다.
+
+<br>
+
+## 성능 비교 결과
+
+| 테스트 환경 | SpinLock (os_unfair_lock) | Actor (async/await) | 매번 새 인스턴스 생성 |
+|------------|---------------------------|---------------------|---------------------|
+| 싱글 스레드 (10K) | `~0.059s` | `~0.059s` | `~0.319s` |
+| 멀티 스레드 (10개 × 1K) | `~0.092s` | `~0.088s` | `~0.222s` |
+| 고부하 (100K) | `~0.603s` | `~0.579s` | - |
+| 높은 동시성 (50개 × 200) | `~0.093s` | `~0.094s` | - |
+
+> **결론**: 성능은 거의 동등하며, 차이는 5% 이내로 무시할 수 있는 수준입니다.
+
+<br>
+
+## 왜 SpinLock을 선택했는가?
+
+### 1. 동기 API의 필요성
+
+NumberterKit은 UI에서 직접 호출되는 포맷팅 라이브러리입니다.
+Actor는 `async/await` API를 강제하므로, 다음과 같은 상황에서 사용이 어렵습니다:
+
+```swift
+// SwiftUI View body - async 불가
+var body: some View {
+    Text(price.currencyString(.won))  // ✅ 동기 API 필요
+}
+
+// UITableView delegate - async 불가
+func tableView(...) -> UITableViewCell {
+    cell.textLabel?.text = price.formatted  // ✅ 동기 API 필요
+}
+
+// Computed property - async 불가
+var formatted: String {
+    FormatterProvider.integerDecimal().string(from: ...)  // ✅ 동기 API 필요
+}
+```
+
+### 2. 비교 요약
+
+| 항목 | SpinLock (os_unfair_lock) | Actor |
+|------|---------------------------|-------|
+| **성능** | ≈ 동등 | ≈ 동등 |
+| **API 스타일** | ✅ 동기 (바로 사용) | ❌ 비동기 (await 필요) |
+| **UI에서 직접 사용** | ✅ 가능 | ❌ 불가능 |
+| **컴파일러 안전성** | ⚠️ 개발자 책임 | ✅ data race 방지 |
+| **플랫폼 요구사항** | ✅ 모든 버전 | ❌ iOS 13+ / macOS 10.15+ |
+
+<br>
+
+## Actor의 내부 구현
+
+Swift의 `actor`는 전통적인 락(lock)을 직접 사용하지 않습니다.
+대신 **Cooperative Thread Pool**과 **Executor** 기반의 새로운 동기화 메커니즘을 사용합니다.
+
+### 핵심 구현 방식
+
+| 방식 | 동작 | 특징 |
+|------|------|------|
+| **Lock (os_unfair_lock)** | 블로킹 | 락 획득까지 스레드 대기 |
+| **DispatchQueue.async** | 논블로킹 | 과도한 스레드 wake-up 가능 |
+| **Actor** | 논블로킹 + Cooperative | CPU 코어 수만큼 스레드 유지, 최적화된 스케줄링 |
+
+### Actor 프로토콜 구조
+
+```swift
+public protocol Actor: AnyObject, Sendable {
+    nonisolated var unownedExecutor: UnownedSerialExecutor { get }
+}
+```
+
+- 각 Actor는 **SerialExecutor**를 통해 작업을 순차적으로 처리
+- `await` 시점에 스레드를 양보하여 다른 Actor 실행 허용 (Reentrancy)
+- 내부적으로 **C++ 기반 DefaultActorImpl** 사용
+
+### 참고 자료
+
+- [Protect mutable state with Swift actors (WWDC21)](https://developer.apple.com/videos/play/wwdc2021/10133/)
+- [Swift concurrency: Behind the scenes (WWDC21)](https://developer.apple.com/videos/play/wwdc2021/10254/)
+- [How Actors Work Internally in Swift - SwiftRocks](https://swiftrocks.com/how-actors-work-internally-in-swift)
+
 <br>
